@@ -1,0 +1,97 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Notify once",
+        "description": "Benachrichtigt genau einmal, wenn eine Entität einen Zustand oder Schwellwert erreicht. Es gibt nichts zu konfigurieren. Bestätige zum Einrichten."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Notify once ist bereits eingerichtet."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_watches": {
+        "name": "Aktive Überwachungen"
+      }
+    }
+  },
+  "services": {
+    "watch": {
+      "name": "Überwachen",
+      "description": "Startet eine Überwachung, die genau eine Benachrichtigung sendet, sobald die Bedingung eintritt, und dann endet.",
+      "fields": {
+        "entity_id": {
+          "name": "Entität",
+          "description": "Die zu überwachende Entität."
+        },
+        "condition": {
+          "name": "Bedingung",
+          "description": "Wann benachrichtigt werden soll."
+        },
+        "state": {
+          "name": "Zustand",
+          "description": "Der Zustand, auf den gewartet wird. Gilt für die Bedingung „Zustand ist gleich“. Werte wie \"on\" in YAML in Anführungszeichen setzen."
+        },
+        "threshold": {
+          "name": "Schwellwert",
+          "description": "Die Zahl, die über- oder unterschritten werden soll. Gilt für „Wert wird größer als“ und „Wert wird kleiner als“."
+        },
+        "notifier": {
+          "name": "Benachrichtigen über",
+          "description": "Ein Notify-Dienst oder eine Notify-Entität, z. B. notify.mobile_app_mein_handy. Standard ist eine Benachrichtigung in Home Assistant."
+        },
+        "message": {
+          "name": "Nachricht",
+          "description": "Eigener Text. Leer lassen für einen automatischen Text."
+        },
+        "hours": {
+          "name": "Maximale Wartezeit",
+          "description": "Nach dieser Zeit in Stunden endet die Überwachung ohne Benachrichtigung."
+        },
+        "language": {
+          "name": "Sprache",
+          "description": "Sprache des automatischen Textes (de oder en). Standard ist die Sprache von Home Assistant."
+        }
+      }
+    },
+    "cancel": {
+      "name": "Überwachung abbrechen",
+      "description": "Bricht eine Überwachung ohne Benachrichtigung ab.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "Die ID der Überwachung, sichtbar in den Attributen des Sensors für aktive Überwachungen."
+        }
+      }
+    },
+    "cancel_all": {
+      "name": "Alle Überwachungen abbrechen",
+      "description": "Bricht alle aktiven Überwachungen ohne Benachrichtigung ab."
+    }
+  },
+  "selector": {
+    "condition": {
+      "options": {
+        "state": "Zustand ist gleich",
+        "above": "Wert wird größer als",
+        "below": "Wert wird kleiner als"
+      }
+    }
+  },
+  "exceptions": {
+    "entity_not_found": {
+      "message": "Die Entität {entity_id} existiert nicht."
+    },
+    "too_many_watches": {
+      "message": "Es gibt bereits {max} aktive Überwachungen. Brich zuerst eine ab."
+    },
+    "watch_not_found": {
+      "message": "Es gibt keine aktive Überwachung mit der ID {id}."
+    },
+    "not_loaded": {
+      "message": "Notify once ist nicht eingerichtet. Füge es unter Einstellungen, Geräte & Dienste hinzu."
+    }
+  }
+}

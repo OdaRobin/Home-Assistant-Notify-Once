@@ -1,0 +1,14 @@
+{
+  "domain": "notify_once",
+  "name": "Notify once",
+  "codeowners": ["@OdaRobin"],
+  "config_flow": true,
+  "dependencies": ["http", "frontend"],
+  "documentation": "https://github.com/OdaRobin/Home-Assistant-Notify-Once",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/OdaRobin/Home-Assistant-Notify-Once/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "1.0.0"
+}

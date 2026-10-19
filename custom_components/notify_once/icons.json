@@ -1,0 +1,20 @@
+{
+  "entity": {
+    "sensor": {
+      "active_watches": {
+        "default": "mdi:bell-ring-outline"
+      }
+    }
+  },
+  "services": {
+    "watch": {
+      "service": "mdi:bell-plus-outline"
+    },
+    "cancel": {
+      "service": "mdi:bell-off-outline"
+    },
+    "cancel_all": {
+      "service": "mdi:bell-remove-outline"
+    }
+  }
+}

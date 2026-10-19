@@ -1,0 +1,97 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Notify once",
+        "description": "Get notified exactly once when an entity reaches a state or threshold. There is nothing to configure. Confirm to set it up."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Notify once is already set up."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_watches": {
+        "name": "Active watches"
+      }
+    }
+  },
+  "services": {
+    "watch": {
+      "name": "Watch",
+      "description": "Starts a watch that sends exactly one notification when the condition becomes true, then ends.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "The entity to watch."
+        },
+        "condition": {
+          "name": "Condition",
+          "description": "When to notify."
+        },
+        "state": {
+          "name": "State",
+          "description": "The state to wait for. Used with the condition 'State equals'. Quote values like \"on\" in YAML."
+        },
+        "threshold": {
+          "name": "Threshold",
+          "description": "The number to cross. Used with 'Value rises above' and 'Value falls below'."
+        },
+        "notifier": {
+          "name": "Notify via",
+          "description": "A notify service or notify entity, for example notify.mobile_app_my_phone. Defaults to a persistent notification."
+        },
+        "message": {
+          "name": "Message",
+          "description": "Custom text. Leave empty for an automatic text."
+        },
+        "hours": {
+          "name": "Maximum wait",
+          "description": "The watch ends without a notification after this many hours."
+        },
+        "language": {
+          "name": "Language",
+          "description": "Language of the automatic text (de or en). Defaults to the Home Assistant language."
+        }
+      }
+    },
+    "cancel": {
+      "name": "Cancel watch",
+      "description": "Cancels one watch without a notification.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "The ID of the watch, shown in the attributes of the active watches sensor."
+        }
+      }
+    },
+    "cancel_all": {
+      "name": "Cancel all watches",
+      "description": "Cancels every active watch without a notification."
+    }
+  },
+  "selector": {
+    "condition": {
+      "options": {
+        "state": "State equals",
+        "above": "Value rises above",
+        "below": "Value falls below"
+      }
+    }
+  },
+  "exceptions": {
+    "entity_not_found": {
+      "message": "The entity {entity_id} does not exist."
+    },
+    "too_many_watches": {
+      "message": "There are already {max} active watches. Cancel one first."
+    },
+    "watch_not_found": {
+      "message": "There is no active watch with the ID {id}."
+    },
+    "not_loaded": {
+      "message": "Notify once is not set up. Add it under Settings, Devices & services."
+    }
+  }
+}

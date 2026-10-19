@@ -1,0 +1,66 @@
+watch:
+  fields:
+    entity_id:
+      required: true
+      example: sensor.rain
+      selector:
+        entity: {}
+    condition:
+      required: false
+      default: state
+      selector:
+        select:
+          translation_key: condition
+          options:
+            - state
+            - above
+            - below
+    state:
+      required: false
+      example: raining
+      selector:
+        text: {}
+    threshold:
+      required: false
+      example: 25
+      selector:
+        number:
+          mode: box
+          step: any
+          min: -1000000
+          max: 1000000
+    notifier:
+      required: false
+      default: notify.persistent_notification
+      example: notify.mobile_app_my_phone
+      selector:
+        text: {}
+    message:
+      required: false
+      selector:
+        text: {}
+    hours:
+      required: false
+      default: 24
+      selector:
+        number:
+          min: 0.01
+          max: 720
+          step: any
+          mode: box
+          unit_of_measurement: h
+    language:
+      required: false
+      example: en
+      selector:
+        text: {}
+
+cancel:
+  fields:
+    id:
+      required: true
+      example: 3f2a9c1b7d40
+      selector:
+        text: {}
+
+cancel_all:
