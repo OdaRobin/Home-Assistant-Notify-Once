@@ -50,6 +50,12 @@ sensor: sensor.notify_once_active_watches      # only if you renamed the sensor
 
 The last used device is remembered per browser.
 
+### Card does not show up?
+
+1. Make sure the integration is added (Settings, Devices & services) and reload the dashboard with a hard refresh (Ctrl+Shift+R). The browser console then prints `NOTIFY-ONCE-CARD v...`.
+2. The card does not appear under **Settings, Dashboards, Resources**. That is expected: the integration loads it through the frontend itself, not as a resource.
+3. If you copied an older card file to `config/www` or added a resource for `notify-once-card.js` yourself, remove it. Two copies of the same card fight over the name `notify-once-card`.
+
 ## How a watch behaves
 
 - It fires when the condition **becomes** true. If the condition is already true when you start the watch, it waits until the value has left the condition and entered it again.
@@ -120,12 +126,26 @@ If you used the earlier `script.notify_once` together with the card:
 2. In the card configuration, remove the `script:` line.
 3. Delete the old script. Its running watches are not transferred, start new ones.
 
+## Security notes
+
+- Every logged-in Home Assistant user can start and cancel watches, because Home Assistant has no per-service permissions. This is the same reach those users already have by calling a notify service directly.
+- The `notifier` field only accepts `notify.<name>`. A watch can send a message, it cannot call other services.
+- Messages are sent as plain text. Jinja templates in a custom message, an entity name or an entity state are **not** evaluated, they are escaped before they reach the notify service. Some notify services print the escaped form (`{{ '{{' }}`) when they do not render templates themselves.
+- Inputs are limited (state 255, message 500 characters, 50 active watches at the same time) and numbers must be finite.
+- The card file is served without login at `/notify_once/notify-once-card.js`, like files in `/local`. It contains no secrets.
+- Custom messages are not shown in the sensor attributes.
+
+Found a vulnerability? Please use GitHub's private vulnerability reporting (Security tab) instead of a public issue. See `SECURITY.md`.
+
 ## Development
 
 ```bash
+pip install jinja2                                         # optional, enables the template-escaping round trip test
 python -m unittest discover -s tests -p "test_*.py" -v   # logic tests, no Home Assistant needed
 node tests/card.test.js                                    # card helper tests
 ```
+
+Bump `version` in `manifest.json` for every release: it is also the cache-busting parameter of the card URL.
 
 The integration code that talks to Home Assistant (`manager.py`, `__init__.py`, `sensor.py`) is kept thin; the decision logic lives in `logic.py` so it can be tested on its own.
 

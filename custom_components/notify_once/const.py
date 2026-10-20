@@ -26,3 +26,9 @@ DEFAULT_HOURS = 24
 MAX_HOURS = 720
 MAX_WATCHES = 50
 DEFAULT_NOTIFIER = "notify.persistent_notification"
+
+# Input limits: every user of Home Assistant can call the services, so keep inputs small.
+MAX_STATE_LENGTH = 255
+MAX_MESSAGE_LENGTH = 500
+MAX_LANGUAGE_LENGTH = 10
+MAX_ID_LENGTH = 64

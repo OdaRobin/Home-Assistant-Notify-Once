@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.1
+
+Security and robustness release.
+
+- Messages are escaped before they reach notify services and persistent notifications. Notify services render messages as Jinja templates, so an entity state, entity name or custom message containing template syntax could have been evaluated. It is now sent as plain text.
+- Custom messages are no longer exposed in the attributes of the active watches sensor.
+- Input limits for state, message, language and id; thresholds and hours must be finite numbers (`nan` and `inf` used to slip through).
+- The notifier check uses a full match.
+- Unreadable stored watches are logged by id only.
+- Manifest points to the real repository.
+
 ## 1.0.0
 
 - First release as an integration. Replaces the script-based version.

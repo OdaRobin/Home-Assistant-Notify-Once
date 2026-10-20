@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,10 @@ from .const import (
     DEFAULT_NOTIFIER,
     DOMAIN,
     MAX_HOURS,
+    MAX_ID_LENGTH,
+    MAX_LANGUAGE_LENGTH,
+    MAX_MESSAGE_LENGTH,
+    MAX_STATE_LENGTH,
     SERVICE_CANCEL,
     SERVICE_CANCEL_ALL,
     SERVICE_WATCH,
@@ -55,6 +60,14 @@ def _notifier(value: Any) -> str:
         raise vol.Invalid(str(err)) from err
 
 
+def _finite_float(value: Any) -> float:
+    """Coerce to float and reject nan and inf."""
+    number = vol.Coerce(float)(value)
+    if not math.isfinite(number):
+        raise vol.Invalid("must be a finite number")
+    return number
+
+
 def _check_request(data: dict[str, Any]) -> dict[str, Any]:
     """Make sure the fields that belong to the chosen condition are present."""
     if data["condition"] == "state":
@@ -70,20 +83,28 @@ WATCH_SCHEMA = vol.All(
         {
             vol.Required("entity_id"): cv.entity_id,
             vol.Optional("condition", default="state"): vol.In(CONDITIONS),
-            vol.Optional("state"): vol.All(normalize_state_value, vol.Length(min=1)),
-            vol.Optional("threshold"): vol.Coerce(float),
-            vol.Optional("notifier", default=DEFAULT_NOTIFIER): _notifier,
-            vol.Optional("message"): cv.string,
-            vol.Optional("hours", default=DEFAULT_HOURS): vol.All(
-                vol.Coerce(float), vol.Range(min=0.01, max=MAX_HOURS)
+            vol.Optional("state"): vol.All(
+                normalize_state_value, vol.Length(min=1, max=MAX_STATE_LENGTH)
             ),
-            vol.Optional("language"): cv.string,
+            vol.Optional("threshold"): _finite_float,
+            vol.Optional("notifier", default=DEFAULT_NOTIFIER): _notifier,
+            vol.Optional("message"): vol.All(
+                cv.string, vol.Length(max=MAX_MESSAGE_LENGTH)
+            ),
+            vol.Optional("hours", default=DEFAULT_HOURS): vol.All(
+                _finite_float, vol.Range(min=0.01, max=MAX_HOURS)
+            ),
+            vol.Optional("language"): vol.All(
+                cv.string, vol.Length(max=MAX_LANGUAGE_LENGTH)
+            ),
         }
     ),
     _check_request,
 )
 
-CANCEL_SCHEMA = vol.Schema({vol.Required("id"): cv.string})
+CANCEL_SCHEMA = vol.Schema(
+    {vol.Required("id"): vol.All(cv.string, vol.Length(min=1, max=MAX_ID_LENGTH))}
+)
 
 
 def _manager(hass: HomeAssistant) -> NotifyOnceManager:

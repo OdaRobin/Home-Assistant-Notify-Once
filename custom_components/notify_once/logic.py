@@ -15,7 +15,9 @@ import uuid
 
 UNAVAILABLE_STATES = ("unavailable", "unknown")
 CONDITIONS = ("state", "above", "below")
-NOTIFIER_RE = re.compile(r"^notify\.[a-z0-9_]+$")
+NOTIFIER_RE = re.compile(r"notify\.[a-z0-9_]+")
+MAX_NOTIFIER_LENGTH = 100
+_TEMPLATE_START_RE = re.compile(r"\{[{%#]")
 
 MESSAGE_TEMPLATES = {
     "de": "{name} ist jetzt {state}",
@@ -48,9 +50,19 @@ def normalize_notifier(value: Any) -> str:
     text = str(value).strip().lower()
     if not text.startswith("notify."):
         text = f"notify.{text}"
-    if not NOTIFIER_RE.match(text):
+    if len(text) > MAX_NOTIFIER_LENGTH or not NOTIFIER_RE.fullmatch(text):
         raise ValueError(f"Invalid notifier: {value!r}")
     return text
+
+
+def escape_templates(text: str) -> str:
+    """Neutralise Jinja syntax so that notify services print the text as it is.
+
+    Home Assistant's legacy notify services and persistent_notification.create
+    treat the message as a template. Text that comes from entity states, entity
+    names or user input must never be evaluated.
+    """
+    return _TEMPLATE_START_RE.sub(lambda match: "{{ '" + match.group(0) + "' }}", text)
 
 
 def evaluate(
@@ -147,7 +159,6 @@ class Watch:
             "target_state": self.target_state,
             "threshold": self.threshold,
             "notifier": self.notifier,
-            "message": self.message,
             "created": self.created.isoformat(),
             "expires": self.expires.isoformat(),
         }

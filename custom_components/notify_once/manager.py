@@ -30,7 +30,7 @@ from .const import (
     STORAGE_VERSION,
     TITLE,
 )
-from .logic import Watch, build_message, create_watch, evaluate, transition
+from .logic import Watch, build_message, create_watch, escape_templates, evaluate, transition
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -61,7 +61,11 @@ class NotifyOnceManager:
             try:
                 watch = Watch.from_storage(raw)
             except (KeyError, TypeError, ValueError) as err:
-                _LOGGER.warning("Dropping unreadable watch %s: %s", raw, err)
+                _LOGGER.warning(
+                    "Dropping unreadable watch %s: %s",
+                    raw.get("id") if isinstance(raw, dict) else "?",
+                    err,
+                )
                 continue
             if watch.is_expired(now):
                 self._fire_event(EVENT_EXPIRED, watch)
@@ -264,10 +268,11 @@ class NotifyOnceManager:
         object_id = notifier.partition(".")[2]
         try:
             if self.hass.services.has_service("notify", object_id):
+                # Legacy notify services render the message as a template.
                 await self.hass.services.async_call(
                     "notify",
                     object_id,
-                    {"title": TITLE, "message": message},
+                    {"title": TITLE, "message": escape_templates(message)},
                     blocking=True,
                 )
                 return
@@ -285,7 +290,7 @@ class NotifyOnceManager:
         await self.hass.services.async_call(
             "persistent_notification",
             "create",
-            {"title": TITLE, "message": message},
+            {"title": TITLE, "message": escape_templates(message)},
             blocking=False,
         )
 
