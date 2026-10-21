@@ -50,11 +50,28 @@ sensor: sensor.notify_once_active_watches      # only if you renamed the sensor
 
 The last used device is remembered per browser.
 
+### How the card gets loaded
+
+The integration serves the card and loads it in two ways:
+
+- as a **dashboard resource** (`/notify_once/notify-once-card.js`, type JavaScript module). It is created and kept up to date automatically a moment after Home Assistant has started and appears under **Settings, Dashboards, Resources**. Home Assistant waits for resources before it draws a dashboard, so the card is known by the time it is needed.
+- as an **extra module**, which also works when your dashboards are managed in YAML.
+
+If your dashboards use YAML mode, Home Assistant does not allow the integration to edit the resource list. Add the resource yourself:
+
+```yaml
+lovelace:
+  resources:
+    - url: /notify_once/notify-once-card.js
+      type: module
+```
+
 ### Card does not show up?
 
-1. Make sure the integration is added (Settings, Devices & services) and reload the dashboard with a hard refresh (Ctrl+Shift+R). The browser console then prints `NOTIFY-ONCE-CARD v...`.
-2. The card does not appear under **Settings, Dashboards, Resources**. That is expected: the integration loads it through the frontend itself, not as a resource.
-3. If you copied an older card file to `config/www` or added a resource for `notify-once-card.js` yourself, remove it. Two copies of the same card fight over the name `notify-once-card`.
+1. Restart Home Assistant after installing or updating the integration, then reload the dashboard with a hard refresh (Ctrl+Shift+R). Check **Settings, Dashboards, Resources** for an entry `/notify_once/notify-once-card.js`.
+2. The browser console prints `NOTIFY-ONCE-CARD v...` when the card file was loaded.
+3. If you copied an older card file to `config/www` or added another resource for `notify-once-card.js` yourself, remove it. Two copies of the same card fight over the name `notify-once-card`.
+4. If you delete the resource entry, the integration creates it again at the next restart.
 
 ## How a watch behaves
 

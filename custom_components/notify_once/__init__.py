@@ -21,6 +21,7 @@ from homeassistant.core import (
 )
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.start import async_at_started
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.loader import async_get_integration
@@ -44,6 +45,7 @@ from .const import (
 )
 from .logic import CONDITIONS, normalize_notifier, normalize_state_value
 from .manager import NotifyOnceManager
+from .resource import async_ensure_card_resource
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -126,13 +128,24 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def _async_register_card(hass: HomeAssistant) -> None:
-    """Serve the card and load it in every dashboard, no resource entry needed."""
+    """Serve the card and make sure every dashboard loads it."""
     card_path = Path(__file__).parent / "www" / CARD_FILENAME
     await hass.http.async_register_static_paths(
         [StaticPathConfig(CARD_URL, str(card_path), False)]
     )
     integration = await async_get_integration(hass, DOMAIN)
-    add_extra_js_url(hass, f"{CARD_URL}?v={integration.version}")
+    url = f"{CARD_URL}?v={integration.version}"
+
+    # Extra module: works in every dashboard mode, but is not awaited by the dashboard.
+    add_extra_js_url(hass, url)
+
+    # Dashboard resource: Home Assistant waits for it before drawing a dashboard.
+    # Lovelace is only ready once Home Assistant has started.
+    async def _register_resource(_hass: HomeAssistant) -> None:
+        result = await async_ensure_card_resource(hass, url)
+        _LOGGER.debug("Notify once card resource: %s", result)
+
+    async_at_started(hass, _register_resource)
 
 
 def _async_register_services(hass: HomeAssistant) -> None:

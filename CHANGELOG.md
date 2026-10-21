@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- The card is now also registered as a dashboard resource (created and updated automatically after Home Assistant has started). Before, it was only loaded as an extra module. Home Assistant does not wait for extra modules, so on some setups the dashboard was drawn before the card existed and showed "Custom element doesn't exist".
+- YAML mode dashboards: see the README for the one line to add.
+
 ## 1.0.1
 
 Security and robustness release.
